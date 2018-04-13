@@ -8,4 +8,4 @@ export interface Attributes {
 }
 export interface Instance extends Sequelize.Instance<Attributes>, Attributes {
 }
-export declare const define: (sequalize: Sequelize.Sequelize) => void;
+export declare const define: (sequalize: Sequelize.Sequelize) => Sequelize.Model<Instance, Attributes>;

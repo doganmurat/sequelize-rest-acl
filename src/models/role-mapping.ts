@@ -17,4 +17,6 @@ export const define = (sequalize: Sequelize.Sequelize) => {
 
     model.belongsTo(sequalize.models['User'], { foreignKey: 'userId' });
     model.belongsTo(sequalize.models['Group'], { foreignKey: 'groupId' });
+
+    return model;
 };

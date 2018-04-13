@@ -16,4 +16,6 @@ export const define = (sequalize: Sequelize.Sequelize) => {
         name: { type: Sequelize.STRING, allowNull: false, unique: true },
         comment: Sequelize.STRING
     });
+
+    return model;
 };

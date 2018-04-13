@@ -1,4 +1,10 @@
+import * as _UserModel from './models/user';
+import * as _GroupModel from './models/group';
+import * as _RoleMappingModel from './models/role-mapping';
 export { default as Connection } from './Connection';
 export { default as ConnectionList } from './ConnectionList';
 export { RequestWithAuth, ICurrentUser, RestAuth } from './RestAuth';
 export { default as RestApi } from './RestApi';
+export declare const UserModel: typeof _UserModel;
+export declare const GroupModel: typeof _GroupModel;
+export declare const RoleMappingModel: typeof _RoleMappingModel;

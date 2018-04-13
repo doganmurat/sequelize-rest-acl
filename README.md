@@ -3,7 +3,7 @@ Rest Api + ACL (Access Control List) for Sequelize ORM
 
 Create rest-api with access control list for Sequelize ORM.
 
-> npm install https://
+> npm install git+https://github.com/doganmurat/sequelize-rest-acl.git
 
 
 This module will install User,Group and RoleMapping tables automatically.
