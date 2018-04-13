@@ -1,0 +1,63 @@
+{
+  "name": "sequelize-rest-acl",
+  "version": "1.0.0",
+  "description": "Sequelize Rest-Api & ACL",
+  "main": "lib/index.js",
+  "types": "lib/index.d.ts",
+  "scripts": {
+    "build": "npm run clean & NODE_ENV=production tsc",
+    "watch": "NODE_ENV=development tsc --watch",
+    "clean": "rm -r lib/*",
+    "git": "yarn run build; git add . --all ; git commit ; git push -u origin master",
+    "test": "jest",
+    "test-watch": "jest --watch"
+  },
+  "author": "Murat Doğan",
+  "license": "MIT",
+  "jest": {
+    "transform": {
+      ".(ts|tsx)": "../node_modules/ts-jest/preprocessor.js"
+    },
+    "testRegex": "(/__tests__/.*.(test|spec)).(ts|tsx|js)$",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json"
+    ],
+    "verbose": true,
+    "rootDir": "src",
+    "globals": {
+      "__TEST__": true
+    },
+    "collectCoverage": true,
+    "coveragePathIgnorePatterns": [
+      "/node_modules/"
+    ],
+    "collectCoverageFrom": [
+      "**/*.{ts,tsx,js,jsx}",
+      "!**/example.*.{js,jsx}",
+      "!node_modules/**",
+      "!public/**",
+      "!coverage/**",
+      "!**/type-definition.{ts,tsx}"
+    ]
+  },
+  "dependencies": {
+    "jsonwebtoken": "^8.2.1",
+    "node-cache": "^4.2.0",
+    "sequelize": "^4.37.6"
+  },
+  "devDependencies": {
+    "@types/debug": "0.0.30",
+    "@types/express": "^4.11.1",
+    "@types/jest": "^22.2.3",
+    "@types/node": "^9.6.4",
+    "@types/sequelize": "^4.27.14",
+    "debug": "^3.1.0",
+    "jest": "^22.4.3",
+    "mysql2": "^1.5.3",
+    "typescript": "^2.8.1"
+  }
+}
