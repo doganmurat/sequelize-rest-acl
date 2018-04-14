@@ -5,6 +5,9 @@ export interface Attributes {
     id: number;
     username: string;
     password: string;
+    name: string;
+    language: string;
+    dateFormat: string;
     email: string;
 }
 export interface Instance extends Sequelize.Instance<Attributes>, Attributes {

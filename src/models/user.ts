@@ -6,6 +6,9 @@ export interface Attributes {
     id: number;
     username: string;
     password: string;
+    name: string;
+    language: string;
+    dateFormat: string;
     email: string;
 };
 
@@ -16,6 +19,9 @@ export const define = (sequalize: Sequelize.Sequelize) => {
         id: { type: Sequelize.INTEGER, autoIncrement: true, primaryKey: true },
         username: { type: Sequelize.STRING, allowNull: false, unique: true },
         password: { type: Sequelize.STRING, allowNull: false },
+        name: Sequelize.STRING,
+        language: Sequelize.STRING,
+        dateFormat: Sequelize.STRING,
         email: Sequelize.STRING
     });
 
