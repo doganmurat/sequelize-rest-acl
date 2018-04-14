@@ -13,11 +13,11 @@
 
  {
    where:{},
-   sort:{} | string,
-   skip:10,
+   order:[],
+   offset:10,
    limit: 10,
-   select:{} | string,
-   polulate:{} | string
+   attributes:[],
+   include:[]
 
  }
 

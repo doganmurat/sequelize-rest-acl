@@ -12,11 +12,11 @@
 
  {
    where:{},
-   sort:{} | string,
-   skip:10,
+   order:[],
+   offset:10,
    limit: 10,
-   select:{} | string,
-   polulate:{} | string
+   attributes:[],
+   include:[]
 
  }
 
@@ -132,46 +132,4 @@ export default class ModelRestApi<TInstance extends Sequelize.Instance<TAttribut
                 });
         }
     }
-
-    // duplicateById(): (req: Request, res: Response, next: NextFunction) => void {
-    //     return (req: Request, res: Response, next: NextFunction) => {
-
-    //         let queryBuilder = this.Model.findById(req.params.id);
-
-    //         queryBuilder.exec((err: Error, result: T) => {
-    //             if (err) {
-    //                 return res.status(400).send({ name: err.name, message: err.message });
-    //             }
-
-    //             if (!result)
-    //                 return res.status(400).send({ name: 'Error', message: 'Record not found to duplicate!' });
-
-    //             result.schema.eachPath((path: string, type: SchemaType) => {
-    //                 if ((type as any).options.unique === true) {
-    //                     result[path] = result[path] + getRandomText();
-    //                 }
-    //             });
-
-    //             result._id = Types.ObjectId();
-    //             result.isNew = true;
-
-    //             result.save((err1: Error, duplicatedItem: T) => {
-    //                 if (err1) {
-    //                     return res.status(400).send({ name: err1.name, message: err1.message });
-    //                 }
-    //                 return res.json(duplicatedItem);
-    //             });
-    //         });
-    //     }
-
-    //     function getRandomText(): string {
-    //         let text: string = "-";
-    //         let possible: string = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-
-    //         for (let i = 0; i < 5; i++)
-    //             text += possible.charAt(Math.floor(Math.random() * possible.length));
-
-    //         return text;
-    //     }
-    // }
 }
