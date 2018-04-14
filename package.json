@@ -49,6 +49,7 @@
     ]
   },
   "dependencies": {
+    "express": "^4.16.3",
     "jsonwebtoken": "^8.2.1",
     "node-cache": "^4.2.0",
     "sequelize": "^4.37.6"
