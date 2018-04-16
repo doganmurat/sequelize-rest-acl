@@ -23,7 +23,7 @@ app.set('port', 3000);
 let dbConnection: Connection  = new Connection({database:'dbName', username:'username', password:'pass', dialect: 'mysql'});
 dbConnection.connect()
   .then(() => {
-    ConnectionList.add('dbName, dbConnection);  
+    ConnectionList.add('dbName', dbConnection);  
 
     // RestAuth.rootMiddleware will sync User,Group & RoleMapping tables  
     app.use('/', RestAuth.rootMiddleware(dbConnection.getConnection()));
@@ -36,6 +36,7 @@ dbConnection.connect()
     process.exit(-1);
   });
 ```
+---
 ```javascript
 // restApi.ts
 
@@ -61,6 +62,7 @@ export default (app: Application, db: Connection) => {
     app.use('/api/area', areaApi(db));
 }
 ```
+---
 ```javascript
 // area-api.ts
 
@@ -84,6 +86,7 @@ export default function (db: Connection): express.Router {
     return router;
 }
 ```
+---
 ```javascript
 // area-model.ts
 
