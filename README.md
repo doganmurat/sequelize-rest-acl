@@ -9,7 +9,7 @@ Create rest-api with access control list for Sequelize ORM.
 This module will install User,Group and RoleMapping tables automatically.
 
 Usage example;
-```
+```javascript
 // app.ts
 
 import * as express from 'express';
@@ -36,7 +36,7 @@ dbConnection.connect()
     process.exit(-1);
   });
 ```
-```
+```javascript
 // restApi.ts
 
 import { Application } from 'express';
@@ -61,7 +61,7 @@ export default (app: Application, db: Connection) => {
     app.use('/api/area', areaApi(db));
 }
 ```
-```
+```javascript
 // area-api.ts
 
 import * as express from 'express';
@@ -84,7 +84,7 @@ export default function (db: Connection): express.Router {
     return router;
 }
 ```
-```
+```javascript
 // area-model.ts
 
 import * as Sequelize from 'sequelize';
