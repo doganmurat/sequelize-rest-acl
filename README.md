@@ -85,6 +85,8 @@ export default function (db: Connection): express.Router {
 }
 ```
 ```
+// area-model.ts
+
 import * as Sequelize from 'sequelize';
 
 export const modelName = 'Area';
