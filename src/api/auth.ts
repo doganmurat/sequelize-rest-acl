@@ -6,7 +6,7 @@ import * as UserModel from '../models/user';
 import * as GroupModel from '../models/group';
 import * as RoleMappingModel from '../models/role-mapping';
 import * as Debug from 'debug';
-const debug = Debug('nkt-seq-rest:Auth');
+const debug = Debug('sequelize-rest-acl:Auth');
 
 /**
  * 
@@ -34,10 +34,14 @@ export default function (db: Connection): express.Router {
         DbModel
             .findOne({ where: { username: req.body.username } })
             .then((user: UserModel.Instance) => {
-                if (!user)
+                if (!user) {
+                    debug(`Could not find username with ${req.body.username}`)
                     return next(new Error('LOGIN_FAILED'));
-                if (req.body.password !== user.password)
+                }
+                if (req.body.password !== user.password) {
+                    debug(`Wrong password for username with ${req.body.username}`)
                     return next(new Error('LOGIN_FAILED'));
+                }
 
                 RoleMappingDbModel
                     .findAll({ where: { userId: user.id }, include: [{ model: GroupDbModel, attributes: ['name'] }] })
@@ -47,13 +51,14 @@ export default function (db: Connection): express.Router {
                             groupNameArray.push((roleMappings[i].groupId as any).name);
 
                         debug(`${user.username} logged in.`);
+                        debug(`user groups: ${groupNameArray}`);
                         return res.json(
                             {
                                 token: RestAuth.encodeValue({ userId: user.id }),
                                 userInfo: {
                                     _id: user.id,
                                     username: user.username,
-                                    name: user.username,
+                                    name: user.name,
                                     lang: user.language,
                                     dateFormat: user.dateFormat
                                 },

@@ -1,6 +1,6 @@
 {
   "name": "sequelize-rest-acl",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Sequelize Rest-Api & ACL",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",

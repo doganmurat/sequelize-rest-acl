@@ -19,7 +19,7 @@ import * as User from './models/user';
 import * as Group from './models/group';
 import * as RoleMapping from './models/role-mapping';
 
-const debug = Debug('nkt-seq-rest:RestAuth');
+const debug = Debug('sequelize-rest-acl:RestAuth');
 
 /**
  * User Data Format;
@@ -92,6 +92,7 @@ export class RestAuth {
 
             // If no access token return
             if (!accessToken) {
+                debug('Request does not have a accesstoken.');
                 req.currentUser = null;
                 return next();
             }

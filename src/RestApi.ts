@@ -25,7 +25,7 @@
 import { Request, Response, NextFunction } from 'express';
 import * as Sequelize from 'sequelize';
 import * as Debug from 'debug';
-const debug = Debug('nkt-seq-rest:RestApi');
+const debug = Debug('sequelize-rest-acl:RestApi');
 
 export default class ModelRestApi<TInstance extends Sequelize.Instance<TAttributes>, TAttributes> {
     private Model: Sequelize.Model<TInstance, TAttributes> = null;
