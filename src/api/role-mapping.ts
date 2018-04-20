@@ -8,7 +8,7 @@ import * as Model from '../models/role-mapping';
 export default function (db: DbConnection): express.Router {
     let router: express.Router = express.Router();
     let DbModel: Sequelize.Model<Model.Instance, Model.Attributes> = db.getConnection().models[Model.modelName];
-    let modelApi = new ModelRestApi<Model.Instance, Model.Attributes>(DbModel);
+    let modelApi = new ModelRestApi<Model.Instance, Model.Attributes>(DbModel, db.getConnection().models);
 
     router.get('/', RestAuth.middleware('@admin', 'GET:All role-mapping'), modelApi.getAll());
     router.get('/count', RestAuth.middleware('@admin', 'GET:COUNT role-mapping'), modelApi.count());

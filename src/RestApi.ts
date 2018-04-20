@@ -29,9 +29,11 @@ const debug = Debug('sequelize-rest-acl:RestApi');
 
 export default class ModelRestApi<TInstance extends Sequelize.Instance<TAttributes>, TAttributes> {
     private Model: Sequelize.Model<TInstance, TAttributes> = null;
+    private sequelizeModelList: Object = null;
 
-    constructor(Model: Sequelize.Model<TInstance, TAttributes>) {
+    constructor(Model: Sequelize.Model<TInstance, TAttributes>, sequelizeModelList: Object) {
         this.Model = Model;
+        this.sequelizeModelList = sequelizeModelList;
     }
 
     getById(): (req: Request, res: Response, next: NextFunction) => void {
@@ -48,8 +50,27 @@ export default class ModelRestApi<TInstance extends Sequelize.Instance<TAttribut
     }
 
     getAll(): (req: Request, res: Response, next: NextFunction) => void {
+        let that = this;
         return (req: Request, res: Response, next: NextFunction) => {
             let where = req.query && req.query.where ? JSON.parse(req.query.where) : {};
+            let includeStr = req.query && req.query.where ? JSON.parse(req.query.include) : [];
+
+            if (!Array.isArray(includeStr)) {
+                return res.status(400).send({ name: 'FORMAT_ERROR', message: 'include option should be an array' });
+            }
+
+            let include = [];
+            for (let i = 0; i < includeStr.length; i++) {
+                let includeItem = { model: this.sequelizeModelList[includeStr[i].model], as: undefined, include: undefined };
+                includeItem.as = includeStr[i].as ? includeStr[i].as : undefined;
+                if (includeStr[i].include) {
+                    if (!Array.isArray(includeStr[i].include)) {
+                        return res.status(400).send({ name: 'FORMAT_ERROR', message: 'include option should be an array' });
+                    }
+                }
+                include.push(includeItem);
+            }
+
             this.Model.findAll({
                 where: where,
                 offset: req.query.offset && !isNaN(req.query.offset) ? parseInt(req.query.offset) : 0,
@@ -64,6 +85,26 @@ export default class ModelRestApi<TInstance extends Sequelize.Instance<TAttribut
                 .catch((err: Error) => {
                     return res.status(400).send({ name: err.name, message: err.message });
                 });
+        }
+
+        function formatIncludeStr(includeStr: string): { formattedInclude: any[], error: boolean } {
+            if (!Array.isArray(includeStr)) {
+                return { formattedInclude: null, error: true };
+            }
+
+            let include = [];
+            for (let i = 0; i < includeStr.length; i++) {
+                let includeItem = { model: that.sequelizeModelList[includeStr[i].model], as: undefined, include: undefined };
+                includeItem.as = includeStr[i].as ? includeStr[i].as : undefined;
+                if (includeStr[i].include) {
+                    let result = formatIncludeStr(includeStr[i].include);
+                    if (result.error)
+                        return { formattedInclude: null, error: true };
+                    includeItem.include = result.formattedInclude;
+                }
+                include.push(includeItem);
+            }
+            return { formattedInclude: include, error: false };
         }
     }
 

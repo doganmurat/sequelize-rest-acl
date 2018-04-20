@@ -26,7 +26,8 @@ import { Request, Response, NextFunction } from 'express';
 import * as Sequelize from 'sequelize';
 export default class ModelRestApi<TInstance extends Sequelize.Instance<TAttributes>, TAttributes> {
     private Model;
-    constructor(Model: Sequelize.Model<TInstance, TAttributes>);
+    private sequelizeModelList;
+    constructor(Model: Sequelize.Model<TInstance, TAttributes>, sequelizeModelList: Object);
     getById(): (req: Request, res: Response, next: NextFunction) => void;
     getAll(): (req: Request, res: Response, next: NextFunction) => void;
     count(): (req: Request, res: Response, next: NextFunction) => void;

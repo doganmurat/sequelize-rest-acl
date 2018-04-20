@@ -18,7 +18,7 @@ export default function (db: Connection): express.Router {
     let GroupDbModel: Sequelize.Model<GroupModel.Instance, GroupModel.Attributes> = db.getConnection().models[GroupModel.modelName];
     let RoleMappingDbModel: Sequelize.Model<RoleMappingModel.Instance, RoleMappingModel.Attributes> = db.getConnection().models[RoleMappingModel.modelName];
 
-    let modelApi = new RestApi<UserModel.Instance, UserModel.Attributes>(DbModel);
+    let modelApi = new RestApi<UserModel.Instance, UserModel.Attributes>(DbModel, db.getConnection().models);
 
     // login, logout
     router.post('/login', RestAuth.middleware('@all', 'LOGIN'), login);
