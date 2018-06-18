@@ -84,6 +84,6 @@ export default function (db: Connection): express.Router {
     }
 
     function isSelfFn(req: RequestWithAuth, cb: (err: Error, result: boolean) => void): void {
-        return cb(null, req.currentUser.user.id === req.params.id);
+        return cb(null, req.currentUser.user.id + '' === req.params.id);
     }
 }
