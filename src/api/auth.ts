@@ -48,7 +48,7 @@ export default function (db: Connection): express.Router {
                     .then((roleMappings: RoleMappingModel.Instance[]) => {
                         let groupNameArray: string[] = [];
                         for (let i = 0; i < roleMappings.length; i++)
-                            groupNameArray.push((roleMappings[i].groupId as any).name);
+                            groupNameArray.push((roleMappings[i][GroupDbModel.name] as any).name);
 
                         debug(`${user.username} logged in.`);
                         debug(`user groups: ${groupNameArray}`);
