@@ -124,7 +124,7 @@ export class RestAuth {
                             .then((roleMappings: RoleMapping.Instance[]) => {
                                 let groupNameArray: string[] = [];
                                 for (let i = 0; i < roleMappings.length; i++)
-                                    groupNameArray.push((roleMappings[i].groupId as any).name);
+                                    groupNameArray.push((roleMappings[i][GroupModel.name] as any).name);
 
                                 // Save currentuser & cache
                                 req.currentUser = {
