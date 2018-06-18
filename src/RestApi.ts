@@ -55,7 +55,7 @@ export default class ModelRestApi<TInstance extends Sequelize.Instance<TAttribut
     getAll(): (req: Request, res: Response, next: NextFunction) => void {
         let that = this;
         return (req: Request, res: Response, next: NextFunction) => {
-            debug('getAll() with query:${req.query || {}}');
+            debug(`getAll() with query:${JSON.stringify(req.query || {})}`);
             let where = req.query && req.query.where ? JSON.parse(req.query.where) : {};
             let includeFnResult = formatIncludeStr(req.query && req.query.include ? JSON.parse(req.query.include) : []);
 
@@ -66,14 +66,14 @@ export default class ModelRestApi<TInstance extends Sequelize.Instance<TAttribut
 
             let filter = {
                 where: where,
-                offset: req.query.offset && !isNaN(req.query.offset) ? parseInt(req.query.offset) : 0,
-                limit: req.query.limit && !isNaN(req.query.limit) ? parseInt(req.query.limit) : 0,
-                order: req.query.order ? JSON.parse(req.query.order) : [],
+                offset: req.query.offset && !isNaN(req.query.offset) ? parseInt(req.query.offset) : undefined,
+                limit: req.query.limit && !isNaN(req.query.limit) ? parseInt(req.query.limit) : undefined,
+                order: req.query.order ? JSON.parse(req.query.order) : undefined,
                 attributes: req.query.attributes ? JSON.parse(req.query.attributes) : undefined,
                 include: includeFnResult.formattedInclude
             };
 
-            debug(`getAll() calling findAll() with filter: ${filter}`);
+            debug(`getAll() calling findAll() with filter: ${JSON.stringify(filter)}`);
             this.Model.findAll(filter)
                 .then((result: TInstance[]) => {
                     debug(`getAll() calling findAll() returned ${result.length} items`);
