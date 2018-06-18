@@ -38,15 +38,15 @@ export default class ModelRestApi<TInstance extends Sequelize.Instance<TAttribut
 
     getById(): (req: Request, res: Response, next: NextFunction) => void {
         return (req: Request, res: Response, next: NextFunction) => {
-            debug('getById() with params:${req.params} query:${req.query || {}}');
+            debug(`getById() with params:${JSON.stringify(req.params)} query:${JSON.stringify(req.query || {})}`);
             this.Model
                 .findById(req.params.id, req.query || {})
                 .then((result: TInstance) => {
-                    debug(`getById() result:${result}`);
+                    debug(`getById() result:${JSON.stringify(result)}`);
                     return res.json(result);
                 })
                 .catch((err: Error) => {
-                    debug(`getById() error. Err:${err}`);
+                    debug(`getById() error. Err:${JSON.stringify(err)}`);
                     return res.status(400).send({ name: err.name, message: err.message });
                 });
         }
@@ -80,20 +80,20 @@ export default class ModelRestApi<TInstance extends Sequelize.Instance<TAttribut
                     return res.json(result);
                 })
                 .catch((err: Error) => {
-                    debug(`getAll() calling findAll() error. Err:${err}`);
+                    debug(`getAll() calling findAll() error. Err:${JSON.stringify(err)}`);
                     return res.status(400).send({ name: err.name, message: err.message });
                 });
         }
 
         function formatIncludeStr(includeStr: any[]): { formattedInclude: any[], error: boolean } {
             if (!Array.isArray(includeStr)) {
-                debug(`formatIncludeStr() Format error. Expecting array. includeStr:${includeStr}`);
+                debug(`formatIncludeStr() Format error. Expecting array. includeStr:${JSON.stringify(includeStr)}`);
                 return { formattedInclude: null, error: true };
             }
 
             let include = [];
             for (let i = 0; i < includeStr.length; i++) {
-                debug(`formatIncludeStr() formatting include item. includeStr[i]:${includeStr[i]}`);
+                debug(`formatIncludeStr() formatting include item. includeStr[i]:${JSON.stringify(includeStr[i])}`);
                 let includeItem = { model: that.sequelizeModelList[includeStr[i].model], as: includeStr[i].as, include: undefined, attributes: includeStr[i].attributes };
                 if (includeStr[i].include) {
                     let result = formatIncludeStr(includeStr[i].include);
@@ -101,7 +101,7 @@ export default class ModelRestApi<TInstance extends Sequelize.Instance<TAttribut
                         return { formattedInclude: null, error: true };
                     includeItem.include = result.formattedInclude;
                 }
-                debug(`formatIncludeStr() formatted include item. includeItem:${includeItem}`);
+                debug(`formatIncludeStr() formatted include item. includeItem:${JSON.stringify(includeItem)}`);
                 include.push(includeItem);
             }
             return { formattedInclude: include, error: false };
@@ -110,7 +110,7 @@ export default class ModelRestApi<TInstance extends Sequelize.Instance<TAttribut
 
     count(): (req: Request, res: Response, next: NextFunction) => void {
         return (req: Request, res: Response, next: NextFunction) => {
-            debug('count() with query:${req.query || {}}');
+            debug(`count() with query:${JSON.stringify(req.query || {})}`);
             let where = req.query && req.query.where ? JSON.parse(req.query.where) : {};
 
             this.Model
@@ -118,11 +118,11 @@ export default class ModelRestApi<TInstance extends Sequelize.Instance<TAttribut
                     where: where
                 })
                 .then((result: number) => {
-                    debug(`count() result:${result}`);
+                    debug(`count() result:${JSON.stringify(result)}`);
                     return res.json(result);
                 })
                 .catch((err: Error) => {
-                    debug(`count() error. Err:${err}`);
+                    debug(`count() error. Err:${JSON.stringify(err)}`);
                     return res.status(400).send({ name: err.name, message: err.message });
                 });
         }
@@ -130,15 +130,15 @@ export default class ModelRestApi<TInstance extends Sequelize.Instance<TAttribut
 
     create(): (req: Request, res: Response, next: NextFunction) => void {
         return (req: Request, res: Response, next: NextFunction) => {
-            debug('create() with body:${req.body || {}}');
+            debug(`create() with body:${JSON.stringify(req.body || {})}`);
             this.Model
                 .create(req.body)
                 .then((result: TInstance) => {
-                    debug(`create() result:${result}`);
+                    debug(`create() result:${JSON.stringify(result)}`);
                     return res.json(result.get());
                 })
                 .catch((err: Error) => {
-                    debug(`create() error. Err:${err}`);
+                    debug(`create() error. Err:${JSON.stringify(err)}`);
                     return res.status(400).send({ name: err.name, message: err.message });
                 });
         }
@@ -146,7 +146,7 @@ export default class ModelRestApi<TInstance extends Sequelize.Instance<TAttribut
 
     updateById(): (req: Request, res: Response, next: NextFunction) => void {
         return (req: Request, res: Response, next: NextFunction) => {
-            debug('updateById() with params:${req.params} body:${req.body || {}}');
+            debug(`updateById() with params:${JSON.stringify(req.params)} body:${JSON.stringify(req.body || {})}`);
             this.Model
                 .findById(req.params.id)
                 .then((record: TInstance) => {
@@ -158,16 +158,16 @@ export default class ModelRestApi<TInstance extends Sequelize.Instance<TAttribut
                     record
                         .updateAttributes(req.body)
                         .then((result: TInstance) => {
-                            debug(`updateById() result:${result}`);
+                            debug(`updateById() result:${JSON.stringify(result)}`);
                             return res.json(result.get());
                         })
                         .catch((err: Error) => {
-                            debug(`updateById()  updateAttributes error. Err:${err}`);
+                            debug(`updateById()  updateAttributes error. Err:${JSON.stringify(err)}`);
                             return res.status(400).send({ name: err.name, message: err.message });
                         });
                 })
                 .catch((err: Error) => {
-                    debug(`updateById() findById error. Err:${err}`);
+                    debug(`updateById() findById error. Err:${JSON.stringify(err)}`);
                     return res.status(400).send({ name: err.name, message: err.message });
                 });
         }
@@ -175,15 +175,15 @@ export default class ModelRestApi<TInstance extends Sequelize.Instance<TAttribut
 
     deleteById(): (req: Request, res: Response, next: NextFunction) => void {
         return (req: Request, res: Response, next: NextFunction) => {
-            debug('deleteById() with params:${req.params}');
+            debug('deleteById() with params:${JSON.stringify(req.params)}');
             this.Model
                 .destroy({ where: { id: req.params.id } })
                 .then((result: number) => {
-                    debug(`deleteById() result:${result}`);
+                    debug(`deleteById() result:${JSON.stringify(result)}`);
                     return res.json(result);
                 })
                 .catch((err: Error) => {
-                    debug(`deleteById() error. Err:${err}`);
+                    debug(`deleteById() error. Err:${JSON.stringify(err)}`);
                     return res.status(400).send({ name: err.name, message: err.message });
                 });
         }
