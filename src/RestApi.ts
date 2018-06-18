@@ -38,12 +38,15 @@ export default class ModelRestApi<TInstance extends Sequelize.Instance<TAttribut
 
     getById(): (req: Request, res: Response, next: NextFunction) => void {
         return (req: Request, res: Response, next: NextFunction) => {
+            debug('getById() with params:${req.params} query:${req.query || {}}');
             this.Model
                 .findById(req.params.id, req.query || {})
                 .then((result: TInstance) => {
+                    debug(`getById() result:${result}`);
                     return res.json(result);
                 })
                 .catch((err: Error) => {
+                    debug(`getById() error. Err:${err}`);
                     return res.status(400).send({ name: err.name, message: err.message });
                 });
         }
@@ -52,56 +55,53 @@ export default class ModelRestApi<TInstance extends Sequelize.Instance<TAttribut
     getAll(): (req: Request, res: Response, next: NextFunction) => void {
         let that = this;
         return (req: Request, res: Response, next: NextFunction) => {
+            debug('getAll() with query:${req.query || {}}');
             let where = req.query && req.query.where ? JSON.parse(req.query.where) : {};
-            let includeStr = req.query && req.query.where ? JSON.parse(req.query.include) : [];
+            let includeFnResult = formatIncludeStr(req.query && req.query.include ? JSON.parse(req.query.include) : []);
 
-            if (!Array.isArray(includeStr)) {
-                return res.status(400).send({ name: 'FORMAT_ERROR', message: 'include option should be an array' });
+            if (includeFnResult.error) {
+                debug('getAll() include format error.');
+                return res.status(400).send({ name: 'WRONG_FORMAT', message: 'Include Format Error' });
             }
 
-            let include = [];
-            for (let i = 0; i < includeStr.length; i++) {
-                let includeItem = { model: this.sequelizeModelList[includeStr[i].model], as: undefined, include: undefined };
-                includeItem.as = includeStr[i].as ? includeStr[i].as : undefined;
-                if (includeStr[i].include) {
-                    if (!Array.isArray(includeStr[i].include)) {
-                        return res.status(400).send({ name: 'FORMAT_ERROR', message: 'include option should be an array' });
-                    }
-                }
-                include.push(includeItem);
-            }
-
-            this.Model.findAll({
+            let filter = {
                 where: where,
                 offset: req.query.offset && !isNaN(req.query.offset) ? parseInt(req.query.offset) : 0,
                 limit: req.query.limit && !isNaN(req.query.limit) ? parseInt(req.query.limit) : 0,
                 order: req.query.order ? JSON.parse(req.query.order) : [],
                 attributes: req.query.attributes ? JSON.parse(req.query.attributes) : undefined,
-                //include:''
-            })
+                include: includeFnResult.formattedInclude
+            };
+
+            debug(`getAll() calling findAll() with filter: ${filter}`);
+            this.Model.findAll(filter)
                 .then((result: TInstance[]) => {
+                    debug(`getAll() calling findAll() returned ${result.length} items`);
                     return res.json(result);
                 })
                 .catch((err: Error) => {
+                    debug(`getAll() calling findAll() error. Err:${err}`);
                     return res.status(400).send({ name: err.name, message: err.message });
                 });
         }
 
-        function formatIncludeStr(includeStr: string): { formattedInclude: any[], error: boolean } {
+        function formatIncludeStr(includeStr: any[]): { formattedInclude: any[], error: boolean } {
             if (!Array.isArray(includeStr)) {
+                debug(`formatIncludeStr() Format error. Expecting array. includeStr:${includeStr}`);
                 return { formattedInclude: null, error: true };
             }
 
             let include = [];
             for (let i = 0; i < includeStr.length; i++) {
-                let includeItem = { model: that.sequelizeModelList[includeStr[i].model], as: undefined, include: undefined };
-                includeItem.as = includeStr[i].as ? includeStr[i].as : undefined;
+                debug(`formatIncludeStr() formatting include item. includeStr[i]:${includeStr[i]}`);
+                let includeItem = { model: that.sequelizeModelList[includeStr[i].model], as: includeStr[i].as, include: undefined, attributes: includeStr[i].attributes };
                 if (includeStr[i].include) {
                     let result = formatIncludeStr(includeStr[i].include);
                     if (result.error)
                         return { formattedInclude: null, error: true };
                     includeItem.include = result.formattedInclude;
                 }
+                debug(`formatIncludeStr() formatted include item. includeItem:${includeItem}`);
                 include.push(includeItem);
             }
             return { formattedInclude: include, error: false };
@@ -110,6 +110,7 @@ export default class ModelRestApi<TInstance extends Sequelize.Instance<TAttribut
 
     count(): (req: Request, res: Response, next: NextFunction) => void {
         return (req: Request, res: Response, next: NextFunction) => {
+            debug('count() with query:${req.query || {}}');
             let where = req.query && req.query.where ? JSON.parse(req.query.where) : {};
 
             this.Model
@@ -117,9 +118,11 @@ export default class ModelRestApi<TInstance extends Sequelize.Instance<TAttribut
                     where: where
                 })
                 .then((result: number) => {
+                    debug(`count() result:${result}`);
                     return res.json(result);
                 })
                 .catch((err: Error) => {
+                    debug(`count() error. Err:${err}`);
                     return res.status(400).send({ name: err.name, message: err.message });
                 });
         }
@@ -127,12 +130,15 @@ export default class ModelRestApi<TInstance extends Sequelize.Instance<TAttribut
 
     create(): (req: Request, res: Response, next: NextFunction) => void {
         return (req: Request, res: Response, next: NextFunction) => {
+            debug('create() with body:${req.body || {}}');
             this.Model
                 .create(req.body)
                 .then((result: TInstance) => {
+                    debug(`create() result:${result}`);
                     return res.json(result.get());
                 })
                 .catch((err: Error) => {
+                    debug(`create() error. Err:${err}`);
                     return res.status(400).send({ name: err.name, message: err.message });
                 });
         }
@@ -140,22 +146,28 @@ export default class ModelRestApi<TInstance extends Sequelize.Instance<TAttribut
 
     updateById(): (req: Request, res: Response, next: NextFunction) => void {
         return (req: Request, res: Response, next: NextFunction) => {
+            debug('updateById() with params:${req.params} body:${req.body || {}}');
             this.Model
                 .findById(req.params.id)
                 .then((record: TInstance) => {
-                    if (!record)
+                    if (!record) {
+                        debug(`updateById() Could not find record.`);
                         return res.send({ name: 'error', message: 'Record not found!' });
+                    }
 
                     record
                         .updateAttributes(req.body)
                         .then((result: TInstance) => {
+                            debug(`updateById() result:${result}`);
                             return res.json(result.get());
                         })
                         .catch((err: Error) => {
+                            debug(`updateById()  updateAttributes error. Err:${err}`);
                             return res.status(400).send({ name: err.name, message: err.message });
                         });
                 })
                 .catch((err: Error) => {
+                    debug(`updateById() findById error. Err:${err}`);
                     return res.status(400).send({ name: err.name, message: err.message });
                 });
         }
@@ -163,12 +175,15 @@ export default class ModelRestApi<TInstance extends Sequelize.Instance<TAttribut
 
     deleteById(): (req: Request, res: Response, next: NextFunction) => void {
         return (req: Request, res: Response, next: NextFunction) => {
+            debug('deleteById() with params:${req.params}');
             this.Model
                 .destroy({ where: { id: req.params.id } })
                 .then((result: number) => {
+                    debug(`deleteById() result:${result}`);
                     return res.json(result);
                 })
                 .catch((err: Error) => {
+                    debug(`deleteById() error. Err:${err}`);
                     return res.status(400).send({ name: err.name, message: err.message });
                 });
         }
