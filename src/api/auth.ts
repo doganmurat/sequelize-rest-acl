@@ -56,7 +56,7 @@ export default function (db: Connection): express.Router {
                             {
                                 token: RestAuth.encodeValue({ userId: user.id }),
                                 userInfo: {
-                                    _id: user.id,
+                                    id: user.id,
                                     username: user.username,
                                     name: user.name,
                                     lang: user.language,

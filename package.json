@@ -14,7 +14,7 @@
     "build": "npm run clean & NODE_ENV=production tsc",
     "watch": "NODE_ENV=development tsc --watch",
     "clean": "rm -r lib/*",
-    "git": "yarn run build; git add . --all ; git commit ; git push -u origin master",
+    "git": "npm run build; git add . --all ; git commit ; git push -u origin master",
     "test": "jest",
     "test-watch": "jest --watch"
   },
