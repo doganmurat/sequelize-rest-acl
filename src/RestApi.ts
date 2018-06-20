@@ -98,13 +98,13 @@ export default class ModelRestApi<TInstance extends Sequelize.Instance<TAttribut
                     model: that.sequelizeModelList[includeStr[i].model],
                     as: includeStr[i].as ? includeStr[i].as : undefined,
                     attributes: includeStr[i].attributes ? includeStr[i].attributes : undefined,
-                    include: undefined
+                    where: includeStr[i].where ? includeStr[i].where : undefined
                 };
                 if (includeStr[i].include) {
                     let result = formatIncludeStr(includeStr[i].include);
                     if (result.error)
                         return { formattedInclude: null, error: true };
-                    includeItem.include = result.formattedInclude;
+                    (includeItem as any).include = result.formattedInclude;
                 }
                 debug(`formatIncludeStr() formatted include item. includeItem:${JSON.stringify(includeItem)}`);
                 include.push(includeItem);
