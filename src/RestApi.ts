@@ -46,7 +46,7 @@ export default class ModelRestApi<TInstance extends Sequelize.Instance<TAttribut
                     return res.json(result);
                 })
                 .catch((err: Error) => {
-                    debug(`getById() error. Err:${JSON.stringify(err)}`);
+                    debug(`getById() error. Err:${JSON.stringify(err.stack)}`);
                     return res.status(400).send({ name: err.name, message: err.message });
                 });
         }
@@ -80,7 +80,7 @@ export default class ModelRestApi<TInstance extends Sequelize.Instance<TAttribut
                     return res.json(result);
                 })
                 .catch((err: Error) => {
-                    debug(`getAll() calling findAll() error. Err:${JSON.stringify(err)}`);
+                    debug(`getAll() calling findAll() error. Err:${JSON.stringify(err.stack)}`);
                     return res.status(400).send({ name: err.name, message: err.message });
                 });
         }
@@ -127,7 +127,7 @@ export default class ModelRestApi<TInstance extends Sequelize.Instance<TAttribut
                     return res.json(result);
                 })
                 .catch((err: Error) => {
-                    debug(`count() error. Err:${JSON.stringify(err)}`);
+                    debug(`count() error. Err:${JSON.stringify(err.stack)}`);
                     return res.status(400).send({ name: err.name, message: err.message });
                 });
         }
@@ -143,7 +143,7 @@ export default class ModelRestApi<TInstance extends Sequelize.Instance<TAttribut
                     return res.json(result.get());
                 })
                 .catch((err: Error) => {
-                    debug(`create() error. Err:${JSON.stringify(err)}`);
+                    debug(`create() error. Err:${JSON.stringify(err.stack)}`);
                     return res.status(400).send({ name: err.name, message: err.message });
                 });
         }
@@ -167,12 +167,12 @@ export default class ModelRestApi<TInstance extends Sequelize.Instance<TAttribut
                             return res.json(result.get());
                         })
                         .catch((err: Error) => {
-                            debug(`updateById()  updateAttributes error. Err:${JSON.stringify(err)}`);
+                            debug(`updateById()  updateAttributes error. Err:${JSON.stringify(err.stack)}`);
                             return res.status(400).send({ name: err.name, message: err.message });
                         });
                 })
                 .catch((err: Error) => {
-                    debug(`updateById() findById error. Err:${JSON.stringify(err)}`);
+                    debug(`updateById() findById error. Err:${JSON.stringify(err.stack)}`);
                     return res.status(400).send({ name: err.name, message: err.message });
                 });
         }
@@ -188,7 +188,7 @@ export default class ModelRestApi<TInstance extends Sequelize.Instance<TAttribut
                     return res.json(result);
                 })
                 .catch((err: Error) => {
-                    debug(`deleteById() error. Err:${JSON.stringify(err)}`);
+                    debug(`deleteById() error. Err:${JSON.stringify(err.stack)}`);
                     return res.status(400).send({ name: err.name, message: err.message });
                 });
         }
