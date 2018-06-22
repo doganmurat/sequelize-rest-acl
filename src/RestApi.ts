@@ -64,14 +64,16 @@ export default class ModelRestApi<TInstance extends Sequelize.Instance<TAttribut
                 return res.status(400).send({ name: 'WRONG_FORMAT', message: 'Include Format Error' });
             }
 
-            let filter = {
+            let filter: any = {
                 where: where,
-                offset: req.query.offset && !isNaN(req.query.offset) ? parseInt(req.query.offset) : undefined,
-                limit: req.query.limit && !isNaN(req.query.limit) ? parseInt(req.query.limit) : undefined,
-                order: req.query.order ? JSON.parse(req.query.order) : undefined,
-                attributes: req.query.attributes ? JSON.parse(req.query.attributes) : undefined,
+                offset: req.query.offset && !isNaN(req.query.offset) ? parseInt(req.query.offset) : 0,
+                limit: req.query.limit && !isNaN(req.query.limit) ? parseInt(req.query.limit) : 1000 * 1000 * 1000,
+                order: req.query.order ? JSON.parse(req.query.order) : [],
                 include: includeFnResult.formattedInclude
             };
+
+            if (req.query.attributes)
+                filter.attributes = JSON.parse(req.query.attributes);
 
             debug(`getAll() calling findAll() with filter: ${JSON.stringify(filter)}`);
             this.Model.findAll(filter)
@@ -96,10 +98,14 @@ export default class ModelRestApi<TInstance extends Sequelize.Instance<TAttribut
                 debug(`formatIncludeStr() formatting include item. includeStr[i]:${JSON.stringify(includeStr[i])}`);
                 let includeItem = {
                     model: that.sequelizeModelList[includeStr[i].model],
-                    as: includeStr[i].as ? includeStr[i].as : undefined,
+                    as: includeStr[i].as ? includeStr[i].as : includeStr[i].model,
                     attributes: includeStr[i].attributes ? includeStr[i].attributes : undefined,
                     where: includeStr[i].where ? includeStr[i].where : undefined
                 };
+
+                if (!includeStr[i].attributes)
+                    delete includeItem.attributes;
+
                 if (includeStr[i].include) {
                     let result = formatIncludeStr(includeStr[i].include);
                     if (result.error)
