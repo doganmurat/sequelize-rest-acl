@@ -112,4 +112,4 @@ export const define = (sequalize: Sequelize.Sequelize): Sequelize.Model<Instance
 ```
 
 ## Debugging
-> Project is using debug package. Start your project with DEBUG=sequelize-rest-acl* node <YOUR-APP>
+> Project is using debug package. Start your project with DEBUG=sequelize-rest-acl* node YOUR-APP
