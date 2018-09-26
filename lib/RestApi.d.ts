@@ -34,4 +34,5 @@ export default class ModelRestApi<TInstance extends Sequelize.Instance<TAttribut
     create(): (req: Request, res: Response, next: NextFunction) => void;
     updateById(): (req: Request, res: Response, next: NextFunction) => void;
     deleteById(): (req: Request, res: Response, next: NextFunction) => void;
+    private formatIncludeStr(includeStr);
 }

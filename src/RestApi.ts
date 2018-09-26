@@ -57,7 +57,7 @@ export default class ModelRestApi<TInstance extends Sequelize.Instance<TAttribut
         return (req: Request, res: Response, next: NextFunction) => {
             debug(`getAll() with query:${JSON.stringify(req.query || {})}`);
             let where = req.query && req.query.where ? JSON.parse(req.query.where) : {};
-            let includeFnResult = formatIncludeStr(req.query && req.query.include ? JSON.parse(req.query.include) : []);
+            let includeFnResult = this.formatIncludeStr(req.query && req.query.include ? JSON.parse(req.query.include) : []);
 
             if (includeFnResult.error) {
                 debug('getAll() include format error.');
@@ -86,44 +86,17 @@ export default class ModelRestApi<TInstance extends Sequelize.Instance<TAttribut
                     return res.status(400).send({ name: err.name, message: err.message });
                 });
         }
-
-        function formatIncludeStr(includeStr: any[]): { formattedInclude: any[], error: boolean } {
-            if (!Array.isArray(includeStr)) {
-                debug(`formatIncludeStr() Format error. Expecting array. includeStr:${JSON.stringify(includeStr)}`);
-                return { formattedInclude: null, error: true };
-            }
-
-            let include = [];
-            for (let i = 0; i < includeStr.length; i++) {
-                debug(`formatIncludeStr() formatting include item. includeStr[i]:${JSON.stringify(includeStr[i])}`);
-                let includeItem = {
-                    model: that.sequelizeModelList[includeStr[i].model],
-                    as: includeStr[i].as ? includeStr[i].as : includeStr[i].model,
-                    attributes: includeStr[i].attributes ? includeStr[i].attributes : undefined,
-                    where: includeStr[i].where ? includeStr[i].where : undefined
-                };
-
-                if (!includeStr[i].attributes)
-                    delete includeItem.attributes;
-
-                if (includeStr[i].include) {
-                    let result = formatIncludeStr(includeStr[i].include);
-                    if (result.error)
-                        return { formattedInclude: null, error: true };
-                    (includeItem as any).include = result.formattedInclude;
-                }
-                debug(`formatIncludeStr() formatted include item. includeItem:${JSON.stringify(includeItem)}`);
-                include.push(includeItem);
-            }
-            return { formattedInclude: include, error: false };
-        }
     }
 
     count(): (req: Request, res: Response, next: NextFunction) => void {
         return (req: Request, res: Response, next: NextFunction) => {
             debug(`count() with query:${JSON.stringify(req.query || {})}`);
             let where = req.query && req.query.where ? JSON.parse(req.query.where) : {};
-
+            let filter = {
+                where: where,
+                include: this.formatIncludeStr(req.query && req.query.include ? JSON.parse(req.query.include) : []).formattedInclude
+            };
+            
             this.Model
                 .count({
                     where: where
@@ -198,5 +171,36 @@ export default class ModelRestApi<TInstance extends Sequelize.Instance<TAttribut
                     return res.status(400).send({ name: err.name, message: err.message });
                 });
         }
+    }
+
+    private formatIncludeStr(includeStr: any[]): { formattedInclude: any[], error: boolean } {
+        if (!Array.isArray(includeStr)) {
+            debug(`formatIncludeStr() Format error. Expecting array. includeStr:${JSON.stringify(includeStr)}`);
+            return { formattedInclude: null, error: true };
+        }
+
+        let include = [];
+        for (let i = 0; i < includeStr.length; i++) {
+            debug(`formatIncludeStr() formatting include item. includeStr[i]:${JSON.stringify(includeStr[i])}`);
+            let includeItem = {
+                model: this.sequelizeModelList[includeStr[i].model],
+                as: includeStr[i].as ? includeStr[i].as : includeStr[i].model,
+                attributes: includeStr[i].attributes ? includeStr[i].attributes : undefined,
+                where: includeStr[i].where ? includeStr[i].where : undefined
+            };
+
+            if (!includeStr[i].attributes)
+                delete includeItem.attributes;
+
+            if (includeStr[i].include) {
+                let result = this.formatIncludeStr(includeStr[i].include);
+                if (result.error)
+                    return { formattedInclude: null, error: true };
+                (includeItem as any).include = result.formattedInclude;
+            }
+            debug(`formatIncludeStr() formatted include item. includeItem:${JSON.stringify(includeItem)}`);
+            include.push(includeItem);
+        }
+        return { formattedInclude: include, error: false };
     }
 }
