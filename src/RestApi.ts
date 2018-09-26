@@ -96,11 +96,9 @@ export default class ModelRestApi<TInstance extends Sequelize.Instance<TAttribut
                 where: where,
                 include: this.formatIncludeStr(req.query && req.query.include ? JSON.parse(req.query.include) : []).formattedInclude
             };
-            
+
             this.Model
-                .count({
-                    where: where
-                })
+                .count(filter)
                 .then((result: number) => {
                     debug(`count() result:${JSON.stringify(result)}`);
                     return res.json(result);
