@@ -12,7 +12,7 @@
     "build": "npm run clean & tsc",
     "watch": "tsc --watch",
     "clean": "rm -r lib/*",
-    "git": "npm run build; git add . --all ; git commit ; git push -u origin master",
+    "git": "npm run build && git add . --all && git commit && git push -u origin master",
     "publish": "npm run build && cd build && npm publish"
   },
   "keywords": [
