@@ -7,19 +7,18 @@
  * and will read user & groups from db
  */
 
-import * as assert from 'assert';
 import * as crypto from 'crypto';
 import * as jsonwebtoken from 'jsonwebtoken';
 import * as NodeCache from 'node-cache';
 import { Request, Response, NextFunction } from 'express';
-import * as Sequelize from 'sequelize';
+import { Sequelize } from 'sequelize-typescript';
 import * as Debug from 'debug';
 import defineModels from './models';
-import * as User from './models/user';
-import * as Group from './models/group';
-import * as RoleMapping from './models/role-mapping';
+import User from './models/user';
+import Group from './models/group';
+import RoleMapping from './models/role-mapping';
 
-const debug = Debug('sequelize-rest-acl:RestAuth');
+const debug = Debug('sx-sequelize-acl:RestAuth');
 
 /**
  * User Data Format;
@@ -32,7 +31,7 @@ const debug = Debug('sequelize-rest-acl:RestAuth');
             groups: ['Group A', 'Group B']
         };
 */
-export interface ICurrentUser {
+export interface CurrentUser {
     user: {
         id: string | number;
         name: string;
@@ -41,7 +40,7 @@ export interface ICurrentUser {
 }
 
 export interface RequestWithAuth extends Request {
-    currentUser: null | ICurrentUser;
+    currentUser: null | CurrentUser;
 }
 
 /**
@@ -55,21 +54,8 @@ export class RestAuth {
     private static hashCode: string | Buffer = null;
     private static userCache: NodeCache = null;
 
-    static rootMiddleware(sequelize: Sequelize.Sequelize):
+    static rootMiddleware(dbConnection: Sequelize):
         (req: Request, res: Response, next: NextFunction) => void {
-
-        // define models
-        defineModels(sequelize);
-
-        // sync db models
-        sequelize
-            .sync()
-            .then(() => {
-                debug('Db models sync completed.');
-            })
-            .catch((err: Error) => {
-                console.error('Db sync Error:', err);
-            });
 
         // Create Hash Code for token
         if (!RestAuth.hashCode) {
@@ -83,9 +69,16 @@ export class RestAuth {
             RestAuth.userCache = new NodeCache({ stdTTL: 3 * 60 * 1000, checkperiod: 60 });
         }
 
-        let UserModel: Sequelize.Model<User.Instance, User.Attributes> = sequelize.models[User.modelName];
-        let GroupModel: Sequelize.Model<Group.Instance, Group.Attributes> = sequelize.models[Group.modelName];
-        let RoleMappingModel: Sequelize.Model<RoleMapping.Instance, RoleMapping.Attributes> = sequelize.models[RoleMapping.modelName];
+        // define models
+        defineModels(dbConnection, (err) => {
+            if (err)
+                console.error('Db sync Error:', err);
+            debug('Db models sync completed.');
+        });
+
+        let UserModel = User;
+        let GroupModel = Group;
+        let RoleMappingModel = RoleMapping;
 
         return (req: RequestWithAuth, res: Response, next: NextFunction) => {
             let accessToken = req.body.token || req.query.token || req.headers['x-access-token'];
@@ -107,7 +100,7 @@ export class RestAuth {
                 }
 
                 // Search Cache
-                let currentUser: ICurrentUser = RestAuth.userCache.get(decoded.userId);
+                let currentUser: CurrentUser = RestAuth.userCache.get(decoded.userId);
                 if (currentUser && currentUser.user && currentUser.user.id) {
                     // user found in cache
                     debug(`User found in cache: ${currentUser.user.name}`);
@@ -117,11 +110,11 @@ export class RestAuth {
 
                 // Find User
                 UserModel
-                    .findById(decoded.userId)
-                    .then((user: User.Instance) => {
+                    .findByPk(decoded.userId)
+                    .then((user: User) => {
                         RoleMappingModel
                             .findAll({ where: { userId: decoded.userId }, include: [{ model: GroupModel, attributes: ['name'] }] })
-                            .then((roleMappings: RoleMapping.Instance[]) => {
+                            .then((roleMappings: RoleMapping[]) => {
                                 let groupNameArray: string[] = [];
                                 for (let i = 0; i < roleMappings.length; i++)
                                     groupNameArray.push((roleMappings[i][GroupModel.name] as any).name);

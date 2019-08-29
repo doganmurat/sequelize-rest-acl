@@ -1,8 +1,5 @@
-/// <reference types="sequelize" />
-import * as Sequelize from 'sequelize';
-export declare const modelName = "User";
-export interface Attributes {
-    id: number;
+import { Model } from 'sequelize-typescript';
+export default class User extends Model<User> {
     username: string;
     password: string;
     name: string;
@@ -10,6 +7,3 @@ export interface Attributes {
     dateFormat: string;
     email: string;
 }
-export interface Instance extends Sequelize.Instance<Attributes>, Attributes {
-}
-export declare const define: (sequalize: Sequelize.Sequelize) => Sequelize.Model<Instance, Attributes>;

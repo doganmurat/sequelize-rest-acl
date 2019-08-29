@@ -1,4 +1,3 @@
-/// <reference types="express" />
 import * as express from 'express';
-import DbConnection from '../Connection';
-export default function (db: DbConnection): express.Router;
+import { Sequelize } from 'sequelize-typescript';
+export default function (connection: Sequelize): express.Router;

@@ -1,29 +1,42 @@
-import * as Sequelize from 'sequelize';
+import { Table, Column, Model, DataType } from 'sequelize-typescript';
 
-export const modelName = 'User';
-
-export interface Attributes {
-    id: number;
+@Table({
+    tableName: 'User',
+    modelName: 'User',
+    freezeTableName: true,
+})
+export default class User extends Model<User> {
+    @Column({
+        type: DataType.STRING(128),
+        allowNull: false,
+        unique: true
+    })
     username: string;
+
+    @Column({
+        type: DataType.STRING(128),
+        allowNull: false,
+    })
     password: string;
+
+    @Column({
+        type: DataType.STRING(128),
+        allowNull: false,
+    })
     name: string;
+
+    @Column({
+        type: DataType.STRING(128),
+    })
     language: string;
+
+    @Column({
+        type: DataType.STRING(128),
+    })
     dateFormat: string;
+
+    @Column({
+        type: DataType.STRING(128),
+    })
     email: string;
-};
-
-export interface Instance extends Sequelize.Instance<Attributes>, Attributes { };
-
-export const define = (sequalize: Sequelize.Sequelize) => {
-    let model = sequalize.define<Instance, Attributes>(modelName, {
-        id: { type: Sequelize.INTEGER, autoIncrement: true, primaryKey: true },
-        username: { type: Sequelize.STRING, allowNull: false, unique: true },
-        password: { type: Sequelize.STRING, allowNull: false },
-        name: Sequelize.STRING,
-        language: Sequelize.STRING,
-        dateFormat: Sequelize.STRING,
-        email: Sequelize.STRING
-    });
-
-    return model;
-};
+}

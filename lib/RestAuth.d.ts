@@ -1,7 +1,13 @@
-/// <reference types="express" />
-/// <reference types="sequelize" />
+/**
+ * Auth Middleware
+ *
+ * This module will read user token from
+ * header(x-access-token) OR
+ * req.body.token OR req.query.token
+ * and will read user & groups from db
+ */
 import { Request, Response, NextFunction } from 'express';
-import * as Sequelize from 'sequelize';
+import { Sequelize } from 'sequelize-typescript';
 /**
  * User Data Format;
   
@@ -13,7 +19,7 @@ import * as Sequelize from 'sequelize';
             groups: ['Group A', 'Group B']
         };
 */
-export interface ICurrentUser {
+export interface CurrentUser {
     user: {
         id: string | number;
         name: string;
@@ -21,7 +27,7 @@ export interface ICurrentUser {
     groups: string[];
 }
 export interface RequestWithAuth extends Request {
-    currentUser: null | ICurrentUser;
+    currentUser: null | CurrentUser;
 }
 /**
  * DB models
@@ -32,7 +38,7 @@ export interface RequestWithAuth extends Request {
 export declare class RestAuth {
     private static hashCode;
     private static userCache;
-    static rootMiddleware(sequelize: Sequelize.Sequelize): (req: Request, res: Response, next: NextFunction) => void;
+    static rootMiddleware(dbConnection: Sequelize): (req: Request, res: Response, next: NextFunction) => void;
     static middleware(permittedGroups: string | string[], resourceName: string, isSelfFn?: (req: RequestWithAuth, cb: (err: Error, result: boolean) => void) => void): (req: RequestWithAuth, res: Response, next: NextFunction) => void;
     static decodeValue(val: string, cb: (err: Error, decoded: Object | string) => void): void;
     static encodeValue(val: string | Object, expiresIn?: number): string | Object;

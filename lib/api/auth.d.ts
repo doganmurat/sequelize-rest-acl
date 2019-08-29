@@ -1,8 +1,7 @@
-/// <reference types="express" />
 import * as express from 'express';
-import { Connection } from '../';
+import { Sequelize } from 'sequelize-typescript';
 /**
  *
  * login, logout & profile api (change password etc..)
  */
-export default function (db: Connection): express.Router;
+export default function (connection: Sequelize): express.Router;

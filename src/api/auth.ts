@@ -1,24 +1,25 @@
 import * as express from 'express';
-import { Request, Response, NextFunction } from 'express';
-import * as Sequelize from 'sequelize';
-import { Connection, RestApi, RestAuth, RequestWithAuth } from '../';
-import * as UserModel from '../models/user';
-import * as GroupModel from '../models/group';
-import * as RoleMappingModel from '../models/role-mapping';
+import { ModelRestApi } from 'sx-sequelize-api';
+import { Sequelize } from 'sequelize-typescript';
+import { Response, NextFunction } from 'express';
+import { RestAuth, RequestWithAuth } from '../';
+import User from '../models/user';
+import Group from '../models/group';
+import RoleMapping from '../models/role-mapping';
 import * as Debug from 'debug';
-const debug = Debug('sequelize-rest-acl:Auth');
+const debug = Debug('sx-sequelize-acl:Auth');
 
 /**
  * 
  * login, logout & profile api (change password etc..)
  */
-export default function (db: Connection): express.Router {
+export default function (connection: Sequelize): express.Router {
     let router: express.Router = express.Router();
-    let DbModel: Sequelize.Model<UserModel.Instance, UserModel.Attributes> = db.getConnection().models[UserModel.modelName];
-    let GroupDbModel: Sequelize.Model<GroupModel.Instance, GroupModel.Attributes> = db.getConnection().models[GroupModel.modelName];
-    let RoleMappingDbModel: Sequelize.Model<RoleMappingModel.Instance, RoleMappingModel.Attributes> = db.getConnection().models[RoleMappingModel.modelName];
+    let DbModel = User;
+    let GroupDbModel = Group;
+    let RoleMappingDbModel = RoleMapping;
 
-    let modelApi = new RestApi<UserModel.Instance, UserModel.Attributes>(DbModel, db.getConnection().models);
+    let modelApi = new ModelRestApi(DbModel, connection);
 
     // login, logout
     router.post('/login', RestAuth.middleware('@all', 'LOGIN'), login);
@@ -33,7 +34,7 @@ export default function (db: Connection): express.Router {
     function login(req: RequestWithAuth, res: Response, next: NextFunction): void {
         DbModel
             .findOne({ where: { username: req.body.username } })
-            .then((user: UserModel.Instance) => {
+            .then((user: User) => {
                 if (!user) {
                     debug(`Could not find username with ${req.body.username}`)
                     return next(new Error('LOGIN_FAILED'));
@@ -45,7 +46,7 @@ export default function (db: Connection): express.Router {
 
                 RoleMappingDbModel
                     .findAll({ where: { userId: user.id }, include: [{ model: GroupDbModel, attributes: ['name'] }] })
-                    .then((roleMappings: RoleMappingModel.Instance[]) => {
+                    .then((roleMappings: RoleMapping[]) => {
                         let groupNameArray: string[] = [];
                         for (let i = 0; i < roleMappings.length; i++)
                             groupNameArray.push((roleMappings[i][GroupDbModel.name] as any).name);

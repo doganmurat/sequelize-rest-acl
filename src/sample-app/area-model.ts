@@ -1,11 +1,11 @@
 import { Table, Column, Model, DataType} from 'sequelize-typescript';
 
 @Table({
-    tableName: 'Group',
-    modelName: 'Group',
+    tableName: 'Area',
+    modelName: 'Area',
     freezeTableName: true,
 })
-export default class Group extends Model<Group> {
+export default class Area extends Model<Area> {
     @Column({
         type: DataType.STRING(128),
         allowNull:false,

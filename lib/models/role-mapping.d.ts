@@ -1,10 +1,9 @@
-/// <reference types="sequelize" />
-import * as Sequelize from 'sequelize';
-export declare const modelName = "RoleMapping";
-export interface Attributes {
+import { Model } from 'sequelize-typescript';
+import User from './user';
+import Group from './group';
+export default class RoleMapping extends Model<RoleMapping> {
     userId: number;
+    User: User;
     groupId: number;
+    Group: Group;
 }
-export interface Instance extends Sequelize.Instance<Attributes>, Attributes {
-}
-export declare const define: (sequalize: Sequelize.Sequelize) => Sequelize.Model<Instance, Attributes>;

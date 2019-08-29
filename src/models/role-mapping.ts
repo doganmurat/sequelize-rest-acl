@@ -1,22 +1,24 @@
-import * as Sequelize from 'sequelize';
+import { Table, Column, Model, DataType, ForeignKey,BelongsTo} from 'sequelize-typescript';
+import User from './user';
+import Group from './group';
 
-export const modelName = 'RoleMapping';
-
-export interface Attributes {
+@Table({
+    tableName: 'RoleMapping',
+    modelName: 'RoleMapping',
+    freezeTableName: true,
+})
+export default class RoleMapping extends Model<RoleMapping> {
+    @ForeignKey(() => User)
+    @Column
     userId: number;
+
+    @BelongsTo(() => User)
+    User: User;
+
+    @ForeignKey(() => Group)
+    @Column
     groupId: number;
-};
 
-export interface Instance extends Sequelize.Instance<Attributes>, Attributes { };
-
-export const define = (sequalize: Sequelize.Sequelize) => {
-    let model = sequalize.define<Instance, Attributes>(modelName, {
-        userId: { type: Sequelize.INTEGER, allowNull: false, onDelete: 'CASCADE' },
-        groupId: { type: Sequelize.INTEGER, allowNull: false, onDelete: 'CASCADE' }
-    });
-
-    model.belongsTo(sequalize.models['User'], { foreignKey: 'userId' });
-    model.belongsTo(sequalize.models['Group'], { foreignKey: 'groupId' });
-
-    return model;
-};
+    @BelongsTo(() => Group)
+    Group: Group;
+}

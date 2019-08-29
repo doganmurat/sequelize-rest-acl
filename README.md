@@ -1,65 +1,85 @@
-Rest Api + ACL (Access Control List) for Sequelize ORM
+ACL (Access Control List) for Sequelize ORM
 =======================================================
 
 Create rest-api with access control list for Sequelize ORM.
 
-> npm install git+https://github.com/doganmurat/sequelize-rest-acl.git
+> npm install git+https://github.com/simplinx-ltd/sx-sequelize-acl.git
 
 
 This module will install User,Group and RoleMapping tables automatically.
 
-Usage example;
+Usage example; (See src/sample-app folder)
 ```javascript
 // app.ts
 
 import * as express from 'express';
+import { Sequelize } from 'sequelize-typescript';
 import * as http from 'http';
-import { Connection, ConnectionList, RestApi, RestAuth } from 'sequelize-rest-acl';
+import { RestAuth } from '../../';
 import restApi from './restApi';
 
 let app: express.Express = express();
-app.set('port', 3000);
+let server: http.Server = null;
 
-let dbConnection: Connection  = new Connection({database:'dbName', username:'username', password:'pass', dialect: 'mysql'});
-dbConnection.connect()
-  .then(() => {
-    ConnectionList.add('dbName', dbConnection);  
+// Db Connection
+let connection: Sequelize = null;
+let port: number = 3000;
 
-    // RestAuth.rootMiddleware will sync User,Group & RoleMapping tables  
-    app.use('/', RestAuth.rootMiddleware(dbConnection.getConnection()));
+app = express();
+app.set('port', port);
 
-    // Rest Api
-    restApi(app, dbConnection);
-  })
-  .catch((err: Error) => {
-    logger.error(err.message);
-    process.exit(-1);
-  });
+server = http.createServer(app);
+server.on('error', (err) => {
+    throw err;
+});
+server.on('listening', () => {
+    console.info('********** Server Listening on port ' + port + ' *********');
+});
+
+// Db Connect
+connection = new Sequelize({ dialect: 'sqlite', storage: 'db.sqlite' });
+connection
+    .authenticate()
+    .then((): void => {
+        // RestAuth.rootMiddleware will sync User,Group & RoleMapping tables  
+        app.use('/', RestAuth.rootMiddleware(connection));
+
+        // Rest Api
+        restApi(app, connection);
+
+        server.listen(port);
+    })
+    .catch((err: Error): void => {
+        console.error(`DB Connection Error. Err: ${err.message}`);
+        console.error('Exiting...');
+        process.exit(-1);
+    });
 ```
 ---
 ```javascript
 // restApi.ts
 
 import { Application } from 'express';
-import { Connection, AuthApi, UserApi, GroupApi, RoleMappingApi } from 'sequelize-rest-acl';
+import { Sequelize } from 'sequelize-typescript';
+import { AuthApi, UserApi, GroupApi, RoleMappingApi } from '../../';
 import areaApi from './area-api';
 
-export default (app: Application, db: Connection) => {
+export default (app: Application, connection: Sequelize) => {
 
     // login, logout & profile endpoints
-    app.use('/api/auth', AuthApi(db));
+    app.use('/api/auth', AuthApi(connection));
 
     // user endpoint
-    app.use('/api/user', UserApi(db));
+    app.use('/api/user', UserApi(connection));
 
     // group endpoint
-    app.use('/api/group', GroupApi(db));
+    app.use('/api/group', GroupApi(connection));
 
     // role-mapping endpoint
-    app.use('/api/roleMapping', RoleMappingApi(db));
+    app.use('/api/roleMapping', RoleMappingApi(connection));
 
     // project endpoints
-    app.use('/api/area', areaApi(db));
+    app.use('/api/area', areaApi(connection));
 }
 ```
 ---
@@ -67,14 +87,15 @@ export default (app: Application, db: Connection) => {
 // area-api.ts
 
 import * as express from 'express';
-import * as Sequelize from 'sequelize';
-import { RestAuth, RestApi, Connection } from 'sequelize-rest-acl';
-import * as Model from './area-model';
+import { Sequelize } from 'sequelize-typescript';
+import { ModelRestApi } from 'sx-sequelize-api';
+import { RestAuth } from '../..';
+import Model from './area-model';
 
-export default function (db: Connection): express.Router {
+export default function (connection: Sequelize): express.Router {
     let router: express.Router = express.Router();
-    let DbModel = Model.define(db.getConnection());
-    let modelApi = new RestApi<Model.Instance, Model.Attributes>(DbModel);
+    let DbModel = Model;
+    let modelApi = new ModelRestApi(DbModel, connection);
 
     router.get('/', RestAuth.middleware('@auth', 'GET:All Area'), modelApi.getAll());
     router.get('/count', RestAuth.middleware('@auth', 'GET:COUNT Area'), modelApi.count());
@@ -90,26 +111,27 @@ export default function (db: Connection): express.Router {
 ```javascript
 // area-model.ts
 
-import * as Sequelize from 'sequelize';
+import { Table, Column, Model, DataType} from 'sequelize-typescript';
 
-export const modelName = 'Area';
-
-export interface Attributes {
+@Table({
+    tableName: 'Area',
+    modelName: 'Area',
+    freezeTableName: true,
+})
+export default class Area extends Model<Area> {
+    @Column({
+        type: DataType.STRING(128),
+        allowNull:false,
+        unique:true
+    })
     name: string;
+
+    @Column({
+        type: DataType.STRING(128),
+    })
     comment: string;
-};
-
-export interface Instance extends Sequelize.Instance<Attributes>, Attributes { };
-
-export const define = (sequalize: Sequelize.Sequelize): Sequelize.Model<Instance, Attributes> => {
-    let model = sequalize.define<Instance, Attributes>(modelName, {
-        name: { type: Sequelize.STRING, allowNull: false, unique: true },
-        comment: Sequelize.STRING
-    });
-
-    return model;
-};
+}
 ```
 
 ## Debugging
-> Project is using debug package. Start your project with DEBUG=sequelize-rest-acl* node YOUR-APP
+> Project is using debug package. Start your project with DEBUG=sx-sequelize-acl* node YOUR-APP

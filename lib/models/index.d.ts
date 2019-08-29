@@ -1,4 +1,2 @@
-/// <reference types="sequelize" />
-import * as Sequelize from 'sequelize';
-declare const _default: (sequelize: Sequelize.Sequelize) => void;
-export default _default;
+import { Sequelize } from 'sequelize-typescript';
+export default function defineModels(dbConnection: Sequelize, cb: (err?: Error) => void): void;
