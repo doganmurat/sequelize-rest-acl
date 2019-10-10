@@ -1,6 +1,6 @@
 {
   "name": "sx-sequelize-acl",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "Sequelize Api Access Control List",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
@@ -13,7 +13,7 @@
     "watch": "tsc --watch",
     "clean": "rm -r lib/*",
     "git": "npm run build && git add . --all && git commit && git push -u origin master",
-    "publish": "npm run build && cd build && npm publish"
+    "publish": "npm run build && npm publish"
   },
   "keywords": [
     "Sequelize",
@@ -33,7 +33,7 @@
     "node-cache": ">=4.2.0",
     "sequelize": ">=5.x",
     "sequelize-typescript": ">=1.0.0-beta.3",
-    "sx-sequelize-api": ">=1.1.1"
+    "sx-sequelize-api": ">=1.1.3"
   },
   "devDependencies": {
     "@types/debug": "^4.1.4",
@@ -48,7 +48,7 @@
     "sequelize": "^5.8.12",
     "sequelize-typescript": "^1.0.0-beta.3",
     "sqlite3": "^4.1.0",
-    "sx-sequelize-api": "^1.1.1",
+    "sx-sequelize-api": "^1.1.3",
     "typescript": "^3.5.2"
   }
 }
