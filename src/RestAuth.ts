@@ -13,7 +13,7 @@ import * as NodeCache from 'node-cache';
 import { Request, Response, NextFunction } from 'express';
 import { Sequelize } from 'sequelize-typescript';
 import * as Debug from 'debug';
-import defineModels from './models';
+import _defineModels from './models';
 import User from './models/user';
 import Group from './models/group';
 import RoleMapping from './models/role-mapping';
@@ -54,7 +54,7 @@ export class RestAuth {
     private static hashCode: string | Buffer = null;
     private static userCache: NodeCache = null;
 
-    static rootMiddleware(dbConnection: Sequelize):
+    static rootMiddleware(dbConnection: Sequelize, defineModels: boolean):
         (req: Request, res: Response, next: NextFunction) => void {
 
         // Create Hash Code for token
@@ -70,11 +70,12 @@ export class RestAuth {
         }
 
         // define models
-        defineModels(dbConnection, (err) => {
-            if (err)
-                console.error('Db sync Error:', err);
-            debug('Db models sync completed.');
-        });
+        if (defineModels)
+            _defineModels(dbConnection, (err) => {
+                if (err)
+                    console.error('Db sync Error:', err);
+                debug('Db models sync completed.');
+            });
 
         let UserModel = User;
         let GroupModel = Group;

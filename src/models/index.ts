@@ -4,6 +4,7 @@ import Group from './group';
 import RoleMapping from './role-mapping';
 
 export default function defineModels(dbConnection: Sequelize, cb: (err?: Error) => void): void {
+    console.log('2312313')
     dbConnection.addModels([
         User, Group, RoleMapping
     ]);

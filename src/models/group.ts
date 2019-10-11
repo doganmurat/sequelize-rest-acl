@@ -1,4 +1,4 @@
-import { Table, Column, Model, DataType} from 'sequelize-typescript';
+import { Table, Column, Model, DataType } from 'sequelize-typescript';
 
 @Table({
     tableName: 'Group',
@@ -8,8 +8,8 @@ import { Table, Column, Model, DataType} from 'sequelize-typescript';
 export default class Group extends Model<Group> {
     @Column({
         type: DataType.STRING(128),
-        allowNull:false,
-        unique:true
+        allowNull: false,
+        unique: true
     })
     name: string;
 

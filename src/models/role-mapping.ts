@@ -13,12 +13,12 @@ export default class RoleMapping extends Model<RoleMapping> {
     userId: number;
 
     @BelongsTo(() => User)
-    User: User;
+    user: User;
 
     @ForeignKey(() => Group)
     @Column
     groupId: number;
 
     @BelongsTo(() => Group)
-    Group: Group;
+    group: Group;
 }

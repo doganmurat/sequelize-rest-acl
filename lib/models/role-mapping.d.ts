@@ -3,7 +3,7 @@ import User from './user';
 import Group from './group';
 export default class RoleMapping extends Model<RoleMapping> {
     userId: number;
-    User: User;
+    user: User;
     groupId: number;
-    Group: Group;
+    group: Group;
 }

@@ -1,11 +1,8 @@
-import _UserModel from './models/user';
-import _GroupModel from './models/group';
-import _RoleMappingModel from './models/role-mapping';
 export { RequestWithAuth, CurrentUser, RestAuth } from './RestAuth';
 export { default as AuthApi } from './api/auth';
 export { default as UserApi } from './api/user';
 export { default as GroupApi } from './api/group';
 export { default as RoleMappingApi } from './api/role-mapping';
-export declare const UserModel: typeof _UserModel;
-export declare const GroupModel: typeof _GroupModel;
-export declare const RoleMappingModel: typeof _RoleMappingModel;
+export { default as UserModel } from './models/user';
+export { default as GroupModel } from './models/group';
+export { default as RoleMappingModel } from './models/role-mapping';

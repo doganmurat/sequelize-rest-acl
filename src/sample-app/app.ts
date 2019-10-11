@@ -28,7 +28,7 @@ connection
     .authenticate()
     .then((): void => {
         // RestAuth.rootMiddleware will sync User,Group & RoleMapping tables  
-        app.use('/', RestAuth.rootMiddleware(connection));
+        app.use('/', RestAuth.rootMiddleware(connection, true));
 
         // Rest Api
         restApi(app, connection);

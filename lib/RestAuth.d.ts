@@ -38,7 +38,7 @@ export interface RequestWithAuth extends Request {
 export declare class RestAuth {
     private static hashCode;
     private static userCache;
-    static rootMiddleware(dbConnection: Sequelize): (req: Request, res: Response, next: NextFunction) => void;
+    static rootMiddleware(dbConnection: Sequelize, defineModels: boolean): (req: Request, res: Response, next: NextFunction) => void;
     static middleware(permittedGroups: string | string[], resourceName: string, isSelfFn?: (req: RequestWithAuth, cb: (err: Error, result: boolean) => void) => void): (req: RequestWithAuth, res: Response, next: NextFunction) => void;
     static decodeValue(val: string, cb: (err: Error, decoded: Object | string) => void): void;
     static encodeValue(val: string | Object, expiresIn?: number): string | Object;
