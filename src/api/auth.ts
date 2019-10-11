@@ -49,7 +49,7 @@ export default function (connection: Sequelize): express.Router {
                     .then((roleMappings: RoleMapping[]) => {
                         let groupNameArray: string[] = [];
                         for (let i = 0; i < roleMappings.length; i++)
-                            groupNameArray.push((roleMappings[i][GroupDbModel.name] as any).name);
+                            groupNameArray.push((roleMappings[i].group.name));
 
                         debug(`${user.username} logged in.`);
                         debug(`user groups: ${groupNameArray}`);

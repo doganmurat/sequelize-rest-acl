@@ -1,6 +1,6 @@
 {
   "name": "sx-sequelize-acl",
-  "version": "1.6.0",
+  "version": "1.8.0",
   "description": "Sequelize Api Access Control List",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
