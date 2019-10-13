@@ -3,8 +3,7 @@ import { Sequelize } from 'sequelize-typescript';
 import { AuthApi, UserApi, GroupApi, RoleMappingApi } from '../';
 import areaApi from './area-api';
 
-export default (app: Application, connection: Sequelize) => {
-
+export default (app: Application, connection: Sequelize): void => {
     // login, logout & profile endpoints
     app.use('/api/auth', AuthApi(connection));
 
@@ -19,4 +18,4 @@ export default (app: Application, connection: Sequelize) => {
 
     // project endpoints
     app.use('/api/area', areaApi(connection));
-}
+};

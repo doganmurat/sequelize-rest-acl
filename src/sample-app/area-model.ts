@@ -1,4 +1,5 @@
-import { Table, Column, Model, DataType} from 'sequelize-typescript';
+/* eslint-disable @typescript-eslint/explicit-member-accessibility */
+import { Table, Column, Model, DataType } from 'sequelize-typescript';
 
 @Table({
     tableName: 'Area',
@@ -8,8 +9,8 @@ import { Table, Column, Model, DataType} from 'sequelize-typescript';
 export default class Area extends Model<Area> {
     @Column({
         type: DataType.STRING(128),
-        allowNull:false,
-        unique:true
+        allowNull: false,
+        unique: true,
     })
     name: string;
 

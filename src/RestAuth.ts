@@ -1,7 +1,7 @@
 /**
  * Auth Middleware
- * 
- * This module will read user token from 
+ *
+ * This module will read user token from
  * header(x-access-token) OR
  * req.body.token OR req.query.token
  * and will read user & groups from db
@@ -35,8 +35,8 @@ export interface CurrentUser {
     user: {
         id: string | number;
         name: string;
-    },
-    groups: string[]
+    };
+    groups: string[];
 }
 
 export interface RequestWithAuth extends Request {
@@ -54,9 +54,10 @@ export class RestAuth {
     private static hashCode: string | Buffer = null;
     private static userCache: NodeCache = null;
 
-    static rootMiddleware(dbConnection: Sequelize, defineModels: boolean):
-        (req: Request, res: Response, next: NextFunction) => void {
-
+    public static rootMiddleware(
+        dbConnection: Sequelize,
+        defineModels: boolean,
+    ): (req: Request, res: Response, next: NextFunction) => void {
         // Create Hash Code for token
         if (!RestAuth.hashCode) {
             debug('Generating hash Code...');
@@ -71,9 +72,8 @@ export class RestAuth {
 
         // define models
         if (defineModels)
-            _defineModels(dbConnection, (err) => {
-                if (err)
-                    console.error('Db sync Error:', err);
+            _defineModels(dbConnection, (err): void => {
+                if (err) console.error('Db sync Error:', err);
                 debug('Db models sync completed.');
             });
 
@@ -81,7 +81,7 @@ export class RestAuth {
         let GroupModel = Group;
         let RoleMappingModel = RoleMapping;
 
-        return (req: RequestWithAuth, res: Response, next: NextFunction) => {
+        return (req: RequestWithAuth, res: Response, next: NextFunction): void => {
             let accessToken = req.body.token || req.query.token || req.headers['x-access-token'];
 
             // If no access token return
@@ -92,7 +92,7 @@ export class RestAuth {
             }
 
             // Decrypt Token
-            jsonwebtoken.verify(accessToken, RestAuth.hashCode, (err0, decoded: { userId: string | number }) => {
+            jsonwebtoken.verify(accessToken, RestAuth.hashCode, (err0, decoded: { userId: string | number }): void => {
                 // Can not verify
                 if (err0) {
                     req.currentUser = null;
@@ -110,32 +110,33 @@ export class RestAuth {
                 }
 
                 // Find User
-                UserModel
-                    .findByPk(decoded.userId)
-                    .then((user: User) => {
-                        RoleMappingModel
-                            .findAll({ where: { userId: decoded.userId }, include: [{ model: GroupModel, attributes: ['name'] }] })
-                            .then((roleMappings: RoleMapping[]) => {
+                UserModel.findByPk(decoded.userId)
+                    .then((user: User): void => {
+                        RoleMappingModel.findAll({
+                            where: { userId: decoded.userId },
+                            include: [{ model: GroupModel, attributes: ['name'] }],
+                        })
+                            .then((roleMappings: RoleMapping[]): void => {
                                 let groupNameArray: string[] = [];
                                 for (let i = 0; i < roleMappings.length; i++)
-                                    groupNameArray.push((roleMappings[i].group.name));
+                                    groupNameArray.push(roleMappings[i].group.name);
 
                                 // Save currentuser & cache
                                 req.currentUser = {
                                     user: { id: decoded.userId, name: user.username },
-                                    groups: groupNameArray
+                                    groups: groupNameArray,
                                 };
                                 RestAuth.userCache.set(decoded.userId, req.currentUser);
                                 return next();
                             })
-                            .catch((err: Error) => {
+                            .catch((err: Error): void => {
                                 req.currentUser = null;
                                 debug(`Can not query RoleMappingModel for userId:${decoded.userId}`);
                                 debug(err);
                                 return next();
                             });
                     })
-                    .catch((err: Error) => {
+                    .catch((err: Error): void => {
                         req.currentUser = null;
                         debug(`Can not find userId ${decoded.userId}`);
                         debug(err);
@@ -145,7 +146,11 @@ export class RestAuth {
         };
     }
 
-    static middleware(permittedGroups: string | string[], resourceName: string, isSelfFn?: (req: RequestWithAuth, cb: (err: Error, result: boolean) => void) => void): (req: RequestWithAuth, res: Response, next: NextFunction) => void {
+    public static middleware(
+        permittedGroups: string | string[],
+        resourceName: string,
+        isSelfFn?: (req: RequestWithAuth, cb: (err: Error, result: boolean) => void) => void,
+    ): (req: RequestWithAuth, res: Response, next: NextFunction) => void {
         /**
          * @all         : Everyone can access
          * @auth        : Authenticated USers can access
@@ -153,7 +158,7 @@ export class RestAuth {
          * @self        : Only Self Resource Permitted
          * ['GroupX']   : Named Groups can access
          */
-        return (req: RequestWithAuth, res: Response, next: NextFunction) => {
+        return (req: RequestWithAuth, res: Response, next: NextFunction): void => {
             if (!Array.isArray(permittedGroups)) {
                 switch (permittedGroups) {
                     case '@all':
@@ -179,11 +184,12 @@ export class RestAuth {
                             debug(`Permission Denied / Requested Level: ${permittedGroups} Resource:${resourceName}`);
                             return next(new Error('ACCESS_ERROR'));
                         }
-                        isSelfFn(req, (err: Error, result: boolean) => {
-                            if (err)
-                                return next(err);
+                        isSelfFn(req, (err: Error, result: boolean): void => {
+                            if (err) return next(err);
                             if (!result) {
-                                debug(`Permission Denied / Requested Level: ${permittedGroups} Resource:${resourceName}`);
+                                debug(
+                                    `Permission Denied / Requested Level: ${permittedGroups} Resource:${resourceName}`,
+                                );
                                 return next(new Error('ACCESS_ERROR'));
                             }
                             return next();
@@ -198,11 +204,10 @@ export class RestAuth {
                 }
             }
             if (permittedGroups !== '@self') {
-                // Array of peritted groups                  
+                // Array of peritted groups
                 for (let i = 0; i < permittedGroups.length; i++)
                     for (let j = 0; j < req.currentUser.groups.length; j++)
-                        if (permittedGroups[i] === req.currentUser.groups[j])
-                            return next();
+                        if (permittedGroups[i] === req.currentUser.groups[j]) return next();
 
                 debug(`Permission Denied / Requested Level: ${permittedGroups} Resource:${resourceName}`);
                 return next(new Error('ACCESS_ERROR'));
@@ -210,11 +215,11 @@ export class RestAuth {
         };
     }
 
-    static decodeValue(val: string, cb: (err: Error, decoded: Object | string) => void): void {
+    public static decodeValue(val: string, cb: (err: Error, decoded: any) => void): void {
         jsonwebtoken.verify(val, RestAuth.hashCode, cb);
     }
 
-    static encodeValue(val: string | Object, expiresIn?: number): string | Object {
-        return jsonwebtoken.sign(val, RestAuth.hashCode, { expiresIn: expiresIn | 60 * 60 * 1000 });
+    public static encodeValue(val: any, expiresIn?: number): string {
+        return jsonwebtoken.sign(val, RestAuth.hashCode, { expiresIn: expiresIn | (60 * 60 * 1000) });
     }
 }

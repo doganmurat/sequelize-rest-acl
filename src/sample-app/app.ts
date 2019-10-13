@@ -1,7 +1,7 @@
 import * as express from 'express';
 import { Sequelize } from 'sequelize-typescript';
 import * as http from 'http';
-import { RestAuth } from '../'
+import { RestAuth } from '../';
 import restApi from './restApi';
 
 let app: express.Express = express();
@@ -9,16 +9,16 @@ let server: http.Server = null;
 
 // Db Connection
 let connection: Sequelize = null;
-let port: number = 3000;
+let port = 3000;
 
 app = express();
 app.set('port', port);
 
 server = http.createServer(app);
-server.on('error', (err) => {
+server.on('error', (err): void => {
     throw err;
 });
-server.on('listening', () => {
+server.on('listening', (): void => {
     console.info('********** Server Listening on port ' + port + ' *********');
 });
 
@@ -27,7 +27,7 @@ connection = new Sequelize({ dialect: 'sqlite', storage: 'db.sqlite' });
 connection
     .authenticate()
     .then((): void => {
-        // RestAuth.rootMiddleware will sync User,Group & RoleMapping tables  
+        // RestAuth.rootMiddleware will sync User,Group & RoleMapping tables
         app.use('/', RestAuth.rootMiddleware(connection, true));
 
         // Rest Api

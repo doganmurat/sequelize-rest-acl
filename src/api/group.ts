@@ -4,7 +4,7 @@ import { ModelRestApi } from 'sx-sequelize-api';
 import { RestAuth } from '../RestAuth';
 import Model from '../models/group';
 
-export default function (connection: Sequelize): express.Router {
+export default function(connection: Sequelize): express.Router {
     let router: express.Router = express.Router();
     let DbModel = Model;
     let modelApi = new ModelRestApi(DbModel, connection);
